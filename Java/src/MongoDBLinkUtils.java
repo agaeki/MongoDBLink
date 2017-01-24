@@ -3,8 +3,11 @@ import java.io.*;
 import java.util.Map;
 import com.mongodb.*;
 import com.wolfram.jlink.*;
+import java.util.Date;
 
 class MongoDBLinkUtils {
+	private static long sm_secondsBetweenEpochs = 2208988800;
+	
 	public static void Iterate(DBCursor cursor) {
 		try {
 			KernelLink link = StdLink.getLink();
@@ -39,7 +42,11 @@ class MongoDBLinkUtils {
 				Deserialize(link, (BasicDBList) value);
 			} else if (value instanceof BasicDBObject) {
 				Deserialize(link, (BasicDBObject) value);
-			} else {
+			} else if (value instanceof Date) {
+				link.putFunction("DateList", 1);
+				link.putFunction((long)(value.getTime()/1000) + sm_secondsBetweenEpochs);
+			}
+			else {
 				link.put(value);
 			}
 		}
